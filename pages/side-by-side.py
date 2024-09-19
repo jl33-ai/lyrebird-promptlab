@@ -1,5 +1,5 @@
 import streamlit as st
-from llm_service import generate
+from services.llm_service import generate
 import pandas as pd
 
 st.set_page_config(layout="wide")

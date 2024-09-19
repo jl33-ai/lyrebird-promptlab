@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from llm_service import generate
+from services.llm_service import generate
 
 st.set_page_config(page_title='LLM Output Generator', page_icon='🤖', layout='wide')
 st.title('LLM Output Generator')

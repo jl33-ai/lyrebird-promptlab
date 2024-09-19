@@ -1,7 +1,7 @@
 import pandas as pd
 import streamlit as st
 
-from llm_service import generate, supported_models
+from services.llm_service import generate, supported_models
 
 from annotated_text import annotated_text
 
