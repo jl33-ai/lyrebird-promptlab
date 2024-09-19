@@ -1,6 +1,10 @@
 import streamlit as st
 import pandas as pd
 from services.llm_service import generate
+import sys
+import os
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 st.set_page_config(page_title='LLM Output Generator', page_icon='🤖', layout='wide')
 st.title('LLM Output Generator')

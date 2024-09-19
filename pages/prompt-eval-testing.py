@@ -1,6 +1,9 @@
 import pandas as pd
 import streamlit as st
+import sys
+import os
 
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from services.llm_service import generate, supported_models
 
 from annotated_text import annotated_text
