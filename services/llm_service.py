@@ -11,7 +11,10 @@ supported_models = Literal[
 
 # env based
 def get_openai_api_key():
-    return st.secrets["openapi_key"]
+    if 'STREAMLIT_SHARING_MODE' in os.environ:
+        return st.secrets["openapi_key"]
+    else:
+        return os.environ.get("OPENAI_API_KEY")
 
 
 def generate(messages: List[Dict[str, str]], model_type: supported_models = "gpt-4"):
