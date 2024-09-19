@@ -1,11 +1,20 @@
 import os
 from typing import List, Dict, Literal
 from dotenv import load_dotenv
+import streamlit as st
 
 load_dotenv()
 
 supported_models = Literal[
     "gpt-4", "gpt-4-o1-preview", "gpt-4o", "anthropic (not supported)", "llama3 (not supported)"]
+
+
+# env based
+def get_openai_api_key():
+    if 'STREAMLIT_SHARING_MODE' in os.environ:
+        return st.secrets["openapi_key"]
+    else:
+        return os.environ.get("OPENAI_API_KEY")
 
 
 def generate(messages: List[Dict[str, str]], model_type: supported_models = "gpt-4"):
@@ -47,7 +56,7 @@ def _generate_azure_openai(messages: List[Dict[str, str]], model_type: str) -> s
 def _generate_openai(messages: List[Dict[str, str]], model_type: str) -> str:
     from openai import OpenAI
 
-    client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+    client = OpenAI(api_key=get_openai_api_key())
 
     model = "o1-preview" if model_type == "gpt-4-o1-preview" else "gpt-4o-2024-05-13"
 
