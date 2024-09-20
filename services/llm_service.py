@@ -9,10 +9,11 @@ supported_models = Literal[
     "gpt-4", "gpt-4-o1-preview", "gpt-4o", "anthropic (not supported)", "llama3 (not supported)"]
 
 
-# env based
 def get_openai_api_key():
+    # if on streamlit cloud
     if 'STREAMLIT_SHARING_MODE' in os.environ:
         return st.secrets["openapi_key"]
+    # if on local or app runner
     else:
         return os.environ.get("OPENAI_API_KEY")
 
