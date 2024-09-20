@@ -1,7 +1,9 @@
 import os
 import sys
+import re
 
 import pandas as pd
+import pyperclip
 import streamlit as st
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -41,15 +43,19 @@ def parse_animated_text(text):
 if 'tag' not in st.session_state:
     st.session_state.tag = False
 
+if 'available_columns' not in st.session_state:
+    st.session_state.available_columns = []
+
+if 'dataframe' not in st.session_state:
+    st.session_state.dataframe = pd.DataFrame()
+
 with st.sidebar:
     # upload from CSV
+    st.subheader("Upload from csv")
     uploaded_file = st.file_uploader("Upload transcripts from .csv")
     if st.button('Populate (warning, will overwrite)'):
         if uploaded_file is not None:
             st.session_state.dataframe = pd.read_csv(uploaded_file)
-
-if 'dataframe' not in st.session_state:
-    st.session_state.dataframe = pd.DataFrame()
 
 col_left, col_right = st.columns(2)
 
@@ -64,6 +70,11 @@ new_transcript = st.text_area('Enter a new transcript', height=100,
 
 def update_dataframe_display():
     dataframe_container.dataframe(st.session_state.dataframe, use_container_width=True)
+    with st.sidebar:
+        st.subheader("Available columns")
+        for column in st.session_state.dataframe.columns.tolist():
+            column_string = "{{" + column + "}}"
+            st.code(column_string)
 
 
 if st.button('Add Transcript'):
@@ -79,11 +90,13 @@ if st.button('Add Transcript'):
 
 available_columns = st.session_state.dataframe.columns.tolist()
 
-import re
+
+def update_available_columns():
+    st.session_state.available_columns = st.session_state.dataframe.columns.tolist()
 
 
 def parse_selected_cols(user_prompt):
-    return re.findall("{{[a-zA-Z_\s]*}}", user_prompt)
+    return re.findall("{{([a-zA-Z_\s]*)}}", user_prompt)
 
 
 def generate_text(df, system_prompt, user_prompt, new_col_name):
@@ -96,7 +109,6 @@ def generate_text(df, system_prompt, user_prompt, new_col_name):
 
     selected_cols = parse_selected_cols(user_prompt)
 
-    print(available_columns)
     for selected_col in selected_cols:
         if selected_col not in available_columns:
             st.warning(f'Warning: {selected_col} is not a valid column.')
@@ -114,7 +126,6 @@ def generate_text(df, system_prompt, user_prompt, new_col_name):
 
         generated_text = generate(messages, gen_model_type)
         if st.session_state.tag:
-            print(generated_text)
             parsed_text = parse_animated_text(generated_text)
             annotated_text(*parsed_text)
 
@@ -123,6 +134,8 @@ def generate_text(df, system_prompt, user_prompt, new_col_name):
 
     results[new_col_name] = new_column
     progress_bar.empty()
+    update_available_columns()
+
     return results
 
 
