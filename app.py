@@ -3,13 +3,10 @@ import sys
 import re
 
 import pandas as pd
-import pyperclip
 import streamlit as st
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from services.llm_service import generate, supported_models
-
-from annotated_text import annotated_text
 
 st.set_page_config(page_title='Prompt/Eval Testing', page_icon='🤖', layout='wide')
 st.title('Prompt/Eval Testing')
