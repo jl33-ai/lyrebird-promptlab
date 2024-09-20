@@ -14,32 +14,6 @@ from annotated_text import annotated_text
 st.set_page_config(page_title='Prompt/Eval Testing', page_icon='🤖', layout='wide')
 st.title('Prompt/Eval Testing')
 
-
-def parse_animated_text(text):
-    parsed = []
-    current_phrase = []
-    in_parentheses = False
-
-    words = text.split()
-
-    for word in words:
-        if '(' in word and not in_parentheses:
-            in_parentheses = True
-            current_phrase.append(word.split('(')[0])
-        elif ')' in word and in_parentheses:
-            in_parentheses = False
-            current_phrase.append(word.split(')')[0])
-            pos = word.split(')')[-1].strip('()')
-            parsed.append((' '.join(current_phrase), pos))
-            current_phrase = []
-        elif in_parentheses:
-            current_phrase.append(word)
-        else:
-            parsed.append(word)
-
-    return parsed
-
-
 if 'tag' not in st.session_state:
     st.session_state.tag = False
 
@@ -125,10 +99,6 @@ def generate_text(df, system_prompt, user_prompt, new_col_name):
         ]
 
         generated_text = generate(messages, gen_model_type)
-        if st.session_state.tag:
-            parsed_text = parse_animated_text(generated_text)
-            annotated_text(*parsed_text)
-
         new_column.append(generated_text)
         progress_bar.progress((idx + 1) / total)
 
@@ -143,7 +113,7 @@ with col_left:
     gen_system_prompt = st.text_area("System Prompt", height=150,
                                      placeholder="Enter the system prompt here...")
     gen_user_prompt = st.text_area("User Prompt", height=150,
-                                   placeholder="Enter the user prompt here...", value="{{column_name}}")
+                                   placeholder="Enter the user prompt here...", value="{{transcripts}}")
     gen_model_type = st.radio(
         "Choose a model type:",
         list(supported_models.__args__)
