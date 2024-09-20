@@ -11,6 +11,8 @@ from services.llm_service import generate, supported_models
 st.set_page_config(page_title='Prompt/Eval Testing', page_icon='🤖', layout='wide')
 st.title('Prompt/Eval Testing')
 
+SYSTEM_PROMPT_TEXT_BOX_HEIGHT = 300
+
 if 'tag' not in st.session_state:
     st.session_state.tag = False
 
@@ -107,7 +109,7 @@ def generate_text(df, system_prompt, user_prompt, new_col_name):
 
 
 with col_left:
-    gen_system_prompt = st.text_area("System Prompt", height=150,
+    gen_system_prompt = st.text_area("System Prompt", height=SYSTEM_PROMPT_TEXT_BOX_HEIGHT,
                                      placeholder="Enter the system prompt here...")
     gen_user_prompt = st.text_area("User Prompt", height=150,
                                    placeholder="Enter the user prompt here...", value="{{transcripts}}")
@@ -139,7 +141,7 @@ with col_left:
             update_dataframe_display()
 
 with col_right:
-    eval_system_prompt = st.text_area("System Prompt Eval", height=150,
+    eval_system_prompt = st.text_area("System Prompt Eval", height=SYSTEM_PROMPT_TEXT_BOX_HEIGHT,
                                       placeholder="E.g 'Find all pertinent negatives' OR 'Compare the two notes for quality'")
     eval_user_prompt = st.text_area("User Prompt Eval", height=150,
                                     placeholder="{{column_name}}")
@@ -157,15 +159,12 @@ with col_right:
             st.error("Please enter a system prompt.")
         elif st.session_state.dataframe.empty:
             st.error("Please add at least one transcript.")
-        elif not eval_selected_columns:
-            st.error("Please select at least one column for input.")
         elif not eval_new_column_name:
             st.error("Please enter a name for the new column.")
         else:
             with st.spinner('Generating outputs...'):
                 st.session_state.dataframe = generate_text(
                     st.session_state.dataframe,
-                    eval_selected_columns,
                     eval_system_prompt,
                     eval_user_prompt,
                     eval_new_column_name

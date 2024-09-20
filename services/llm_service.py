@@ -6,7 +6,7 @@ import streamlit as st
 load_dotenv()
 
 supported_models = Literal[
-    "gpt-4", "gpt-4-o1-preview", "gpt-4o", "anthropic (not supported)", "llama3 (not supported)"]
+    "gpt-4o", "gpt-4-o1-preview", "gpt-4", "anthropic", "llama3 (not supported yet)"]
 
 
 def get_openai_api_key():
@@ -71,6 +71,8 @@ def _generate_openai(messages: List[Dict[str, str]], model_type: str) -> str:
 
 def _generate_anthropic(messages: List[Dict[str, str]]) -> str:
     from anthropic import AnthropicBedrock
+    print("Generating wiht anthropic")
+    print(os.getenv("AWS_ACCESS_KEY"))
 
     client = AnthropicBedrock(
         aws_access_key=os.getenv("AWS_ACCESS_KEY"),
@@ -78,12 +80,13 @@ def _generate_anthropic(messages: List[Dict[str, str]]) -> str:
         aws_region=os.getenv("AWS_REGION", "us-east-1"),
     )
 
-    message = client.messages.create(
+    response = client.messages.create(
         model=os.getenv("ANTHROPIC_MODEL", "anthropic.claude-3-5-sonnet-20240620-v1:0"),
         max_tokens=256,
-        messages=[{"role": "user", "content": "Hello, world"}]
+        system=messages[0]["content"],
+        messages=messages[1:]
     )
-    return message.content[0]
+    return response.content[0].text
 
 
 def _generate_llama3(messages: List[Dict[str, str]]) -> str:
