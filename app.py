@@ -88,13 +88,15 @@ def generate_text(df, system_prompt, user_prompt, new_col_name):
 
     new_column = []
     for idx, row in results.iterrows():
+        interpolated_user_prompt = user_prompt
         for selected_col in selected_cols:
             if selected_col in available_columns:
-                user_prompt = user_prompt.replace("{{" + selected_col + "}}", str(row[selected_col]))
+                interpolated_user_prompt = interpolated_user_prompt.replace("{{" + selected_col + "}}",
+                                                                            str(row[selected_col]))
 
         messages = [
             {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_prompt}
+            {"role": "user", "content": interpolated_user_prompt}
         ]
 
         generated_text = generate(messages, gen_model_type)

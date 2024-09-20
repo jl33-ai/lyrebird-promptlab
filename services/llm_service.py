@@ -15,7 +15,7 @@ def get_openai_api_key():
     return st.secrets["openapi_key"]
     # if on local or app runner
     # else:
-    #     return os.environ.get("OPENAI_API_KEY")
+    # return os.environ.get("OPENAI_API_KEY")
 
 
 def generate(messages: List[Dict[str, str]], model_type: supported_models = "gpt-4"):
