@@ -22,6 +22,17 @@ if 'available_columns' not in st.session_state:
 if 'dataframe' not in st.session_state:
     st.session_state.dataframe = pd.DataFrame()
 
+
+def extract_transcript(text):
+    pattern = r'<start_of_transcript>(.*?)<end_of_transcript>'
+    match = re.search(pattern, text, re.DOTALL)
+
+    if match:
+        return match.group(1).strip()
+    else:
+        return None
+
+
 with st.sidebar:
     # upload from CSV
     st.subheader("Upload from csv")
@@ -29,6 +40,17 @@ with st.sidebar:
     if st.button('Populate (warning, will overwrite)'):
         if uploaded_file is not None:
             st.session_state.dataframe = pd.read_csv(uploaded_file)
+
+    st.markdown('---')
+    column_to_extract_transcript = st.selectbox(label="Column to extract transcript",
+                                                options=st.session_state.dataframe.columns.tolist())
+    column_name_for_extracted_transcript = st.text_input(label="Name of new columns", value="extracted_transcript")
+    if st.button('Extract transcript columns'):
+        if st.session_state.dataframe is not None:
+            if column_name_for_extracted_transcript in st.session_state.dataframe.columns.tolist():
+                st.session_state.dataframe[column_name_for_extracted_transcript] = st.session_state.dataframe[
+                    column_to_extract_transcript].apply(
+                    lambda x: extract_transcript(x))
 
 col_left, col_right = st.columns(2)
 
