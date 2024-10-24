@@ -95,7 +95,7 @@ def parse_selected_cols(user_prompt):
     return re.findall("{{([a-zA-Z_\s]*)}}", user_prompt)
 
 
-def generate_text(df, system_prompt, user_prompt, new_col_name):
+def generate_text(df, system_prompt, user_prompt, new_col_name, model_type):
     results = df.copy()
     total = len(results)
     progress_bar = st.progress(0)
@@ -122,7 +122,7 @@ def generate_text(df, system_prompt, user_prompt, new_col_name):
             {"role": "user", "content": interpolated_user_prompt}
         ]
 
-        generated_text = generate(messages, gen_model_type)
+        generated_text = generate(messages, model_type)
         new_column.append(generated_text)
         progress_bar.progress((idx + 1) / total)
 
@@ -159,7 +159,8 @@ with col_left:
                     st.session_state.dataframe,
                     gen_system_prompt,
                     gen_user_prompt,
-                    gen_new_column_name
+                    gen_new_column_name,
+                    gen_model_type
                 )
 
             st.success("Generation complete!")
@@ -192,7 +193,8 @@ with col_right:
                     st.session_state.dataframe,
                     eval_system_prompt,
                     eval_user_prompt,
-                    eval_new_column_name
+                    eval_new_column_name,
+                    eval_model_type
                 )
 
             st.success("Evaluation complete!")
