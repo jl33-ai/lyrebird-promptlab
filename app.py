@@ -10,7 +10,7 @@ from services.llm_service import generate, supported_models
 
 st.set_page_config(page_title='Prompt/Eval Testing', page_icon='🤖', layout='wide')
 
-st.title('Prompt/Eval Testing')
+st.title('Prompt Testing')
 
 SYSTEM_PROMPT_TEXT_BOX_HEIGHT = 300
 

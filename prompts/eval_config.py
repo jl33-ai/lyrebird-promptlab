@@ -33,7 +33,7 @@ CRITERIA = [
     },
     {
         'title': 'level_of_detail',
-        'prompt': 'Rate the level of detail in the note compared to the transcript on a scale of 0-100.\n\nNote:\n{notes}\n\nTranscript:\n{transcript}',
+        'prompt': 'Rate the level of detail in the note on a scale of 0-100.\n\nNote:\n{notes}, where 100 is no mistakes, and then subtract one for every sentence with a mistake',
         'type': 'score'
     }
 ]
@@ -47,6 +47,7 @@ def decorate_criteria_prompts(criteria):
     elif criteria['type'] == 'score':
         return f'''You are a professional medical note evaluator. Your task is to read a medical note and then perform a detailed analysis on it, and provide one number
         {criteria['prompt']}
+        Ratings must be done on a scale of [0-100]
         You must first justify your score, explaining the reasoning behind how you arrived at the number, and then output the number. The number should only be mentioned once. 
         '''
 
