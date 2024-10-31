@@ -1,3 +1,4 @@
+import concurrent
 import os
 import sys
 import re
@@ -45,17 +46,15 @@ with st.sidebar:
 
 def evaluate_notes(df, notes_col, transcript_col, criteria_list, model_type):
     results = df.copy()
+
     for criterion in criteria_list:
         title = criterion['title']
         prompt_template = criterion['prompt']
         response_type = criterion['type']  # 'list' or 'score'
-        scores = []
-        raw_responses = []
 
-        for idx, row in df.iterrows():
+        def process_row(row):
             notes = row[notes_col]
             transcript = row[transcript_col]
-
             user_prompt = prompt_template.format(notes=notes, transcript=transcript)
 
             messages = [
@@ -64,20 +63,25 @@ def evaluate_notes(df, notes_col, transcript_col, criteria_list, model_type):
             ]
 
             response = generate(messages, model_type)
-            raw_responses.append(response)
 
             if response_type == 'list':
                 num_items = len([line for line in response.strip().split('\n') if line.strip()])
                 score = num_items
             elif response_type == 'score':
                 try:
-                    score = float(re.findall(r'\d+', response)[0])
+                    score = int(re.findall(r'\d+', response)[-1])
                 except:
                     score = None
             else:
                 score = None
 
-            scores.append(score)
+            return score, response
+
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            results_list = list(executor.map(process_row, [row for _, row in df.iterrows()]))
+
+        scores = [res[0] for res in results_list]
+        raw_responses = [res[1] for res in results_list]
 
         results[f"{title} Score"] = scores
         results[f"{title} Response"] = raw_responses
