@@ -24,8 +24,8 @@ if 'dataframe' not in st.session_state:
     st.session_state.dataframe = pd.DataFrame()
 
 
-def extract_transcript(text):
-    pattern = r'<start_of_transcript>(.*?)<end_of_transcript>'
+def extract_transcript(text, tag_start, tag_end):
+    pattern = rf'{tag_start}(.*?){tag_start}'
     match = re.search(pattern, text, re.DOTALL)
 
     if match:
@@ -43,15 +43,18 @@ with st.sidebar:
             st.session_state.dataframe = pd.read_csv(uploaded_file)
 
     st.markdown('---')
-    column_to_extract_transcript = st.selectbox(label="Column to extract transcript",
+    column_to_extract_transcript = st.selectbox(label="Column to extract tag from",
                                                 options=st.session_state.dataframe.columns.tolist())
+    tag_start = st.text_input(label="Tag start", value="<start_of_transcript>")
+    tag_end = st.text_input(label="Tag end", value="<end_of_transcript>")
     column_name_for_extracted_transcript = st.text_input(label="Name of new columns", value="extracted_transcript")
+
     if st.button('Extract transcript columns'):
         if st.session_state.dataframe is not None:
             if column_name_for_extracted_transcript in st.session_state.dataframe.columns.tolist():
                 st.session_state.dataframe[column_name_for_extracted_transcript] = st.session_state.dataframe[
                     column_to_extract_transcript].apply(
-                    lambda x: extract_transcript(x))
+                    lambda x: extract_transcript(x, tag_start, tag_end))
 
 col_left, col_right = st.columns(2)
 
