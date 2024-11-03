@@ -1,6 +1,7 @@
 import os
 import sys
 import re
+import concurrent
 
 import pandas as pd
 import streamlit as st
@@ -112,24 +113,25 @@ def generate_text(df, system_prompt, user_prompt, new_col_name, model_type):
         if selected_col not in available_columns:
             st.warning(f'Warning: {selected_col} is not a valid column.')
 
-    new_column = []
-    for idx, row in results.iterrows():
+    def process_row(row):
         interpolated_user_prompt = user_prompt
-        for selected_col in selected_cols:
-            if selected_col in available_columns:
-                interpolated_user_prompt = interpolated_user_prompt.replace("{{" + selected_col + "}}",
-                                                                            str(row[selected_col]))
+        for column in selected_cols:
+            if column in available_columns:
+                interpolated_user_prompt = interpolated_user_prompt.replace("{{" + column + "}}",
+                                                                            str(row[column]))
 
         messages = [
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": interpolated_user_prompt}
         ]
 
-        generated_text = generate(messages, model_type)
-        new_column.append(generated_text)
-        progress_bar.progress((idx + 1) / total)
+        return generate(messages, model_type)
 
-    results[new_col_name] = new_column
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        results_list = list(executor.map(process_row, [row for _, row in results.iterrows()]))
+
+    progress_bar.progress(1)
+    results[new_col_name] = results_list
     progress_bar.empty()
     update_available_columns()
 
