@@ -58,7 +58,7 @@ TRANSCRIPT: {transcript}'''
 def evaluate_notes(df, notes_col, transcript_col, criteria_list, model_type):
     results = df.copy()
 
-    for criterion in criteria_list:
+    def process_criteria(criterion):
         title = criterion['title']
         response_type = criterion['type']  # 'list' or 'score'
 
@@ -100,6 +100,15 @@ def evaluate_notes(df, notes_col, transcript_col, criteria_list, model_type):
 
         results[f"{title} Score"] = scores
         results[f"{title} Response"] = raw_responses
+
+        return scores, raw_responses
+
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        criteria_results_list = list(executor.map(process_criteria, criteria_list))
+
+    for i, criteria in enumerate(criteria_list):
+        results[criteria['title'] + ' score'] = criteria_results_list[i][0]
+        results[criteria['title'] + ' response'] = criteria_results_list[i][0]
 
     return results
 
