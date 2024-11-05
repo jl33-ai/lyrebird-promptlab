@@ -75,8 +75,6 @@ def evaluate_notes(df, notes_col, transcript_col, criteria_list, model_type):
                 }
             ]
 
-            print(messages)
-
             response = generate(messages, model_type)
 
             if response_type == 'list':
