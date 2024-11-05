@@ -6,6 +6,8 @@ import concurrent
 import pandas as pd
 import streamlit as st
 
+from helpers.format import extract_tags
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from services.llm_service import generate, supported_models
 
@@ -23,17 +25,6 @@ if 'available_columns' not in st.session_state:
 
 if 'dataframe' not in st.session_state:
     st.session_state.dataframe = pd.DataFrame()
-
-
-def extract_transcript(text, tag_start, tag_end):
-    pattern = rf'{tag_start}(.*?){tag_start}'
-    match = re.search(pattern, text, re.DOTALL)
-
-    if match:
-        return match.group(1).strip()
-    else:
-        return None
-
 
 with st.sidebar:
     # upload from CSV
@@ -55,7 +46,7 @@ with st.sidebar:
             if column_name_for_extracted_transcript in st.session_state.dataframe.columns.tolist():
                 st.session_state.dataframe[column_name_for_extracted_transcript] = st.session_state.dataframe[
                     column_to_extract_transcript].apply(
-                    lambda x: extract_transcript(x, tag_start, tag_end))
+                    lambda x: extract_tags(x, tag_start, tag_end))
 
 col_left, col_right = st.columns(2)
 

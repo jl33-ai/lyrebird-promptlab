@@ -83,6 +83,6 @@ st.sidebar.markdown("""
 2. Select the number of iterations (1-5).
 3. Choose the models you want to compare.
 4. Click 'Generate Responses' to see the results.
-5. View the results in either Side-by-Side or Tabular format.
+5. View the results in either Side-by-Side or Tabular format.py.
 6. Download the results as a CSV file if needed.
 """)

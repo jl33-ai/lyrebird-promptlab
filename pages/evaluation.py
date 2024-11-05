@@ -5,7 +5,7 @@ import re
 import pandas as pd
 import streamlit as st
 from services.llm_service import generate, supported_models
-from prompts.eval_config import get_criteria
+from prompts.evaluation_prompts import get_criteria
 
 st.set_page_config(page_title='Lyrebird Note Evaluation', page_icon='', layout='wide')
 
