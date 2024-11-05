@@ -7,34 +7,64 @@ How it works
 CRITERIA = [
     {
         'title': 'num_hallucinations',
-        'prompt': '''You are a professional medical note evaluator. Your task is to read a medical note and the corresponding transcript and then perform a detailed analysis on it by searching for and listing out all hallucinations. Read the transcript, and then list all hallucinations that occurred in the note. A hallucination is a made up piece of information that was never mentioned in the transcript but appeared in the note:
-        TRANSCRIPT: {transcript}
-        NOTES: {notes}''',
-        'type': 'list'
+        'prompt': '''You are an expert medical documentation specialist obsessed with details
+- You are comprehensively evaluating a clinical note generated from a consult transcript based on the quality of the output.
+- You will also be given the prompt for how the notes should have been written and are evaluating any instructions that were not followed in generating the supplied notes.
+- You will be given the transcript for the consult, generated notes, and the prompt used to generate the notes.
+- If something is not in the notes but also not clear in the transcript and theoretically couldnt have been included in the notes, dont mention this
+- Provide your answers in dot point form, quoting the input sources where possible.
+
+you must evaluate the hallucination levels of the consult note. Give a count of the instances of each issue that occur with referenced proof below quoting where it occured:
+Hallucinations: you must list anything that was said in the notes that is not entirely objectively clear in the transcript, this can also include where the notes have even slightly altered or applied interpretation to the transcript''',
+        'type': 'list',
+        'input_required': 'both'  # 'notes', 'transcript', or 'both'
     },
     {
         'title': 'missed_information',
-        'prompt': '''You are a professional medical note evaluator. Your task is to read a medical note and the corresponding transcript, and then search for and list out all missed information. Read the transcript, and then list all discrete pieces of missed information that occurred in the note. For example, if the transcript mentioned that the patient got a vaccination last year, but the note omitted this:
-        TRANSCRIPT: {transcript}
-        NOTES: {notes}''',
-        'type': 'list'
+        'prompt': '''You are an expert medical documentation specialist obsessed with details
+- You are comprehensively evaluating a clinical note generated from a consult transcript based on the quality of the output.
+- You will also be given the prompt for how the notes should have been written and are evaluating any instructions that were not followed in generating the supplied notes.
+- You will be given the transcript for the consult, generated notes, and the prompt used to generate the notes.
+- If something is not in the notes but also not clear in the transcript and theoretically couldnt have been included in the notes, dont mention this
+- Provide your answers in dot point form, quoting the input sources where possible.
+
+you must evaluate the amount of missed information in the consult note. Give a count of the instances of each issue that occur with referenced proof below quoting where it occured:
+List any and all clinically relevant information or detail in the transcript that was missed in the notes. This can even be specific details that were left out of sections that the clinician would have wanted to known
+- find all examination findings/measurements present in the transcript but not included in the notes
+You must also find all pertinent negatives missed in the notes. A pertinent negative is every time the patient answers in the negative to a specific feeling, symptom or any question by the doctor. You must find any/all that are missed in the notes but occured in the transcript''',
+        'type': 'list',
+        'input_required': 'both'
     },
     {
         'title': 'duplication',
-        'prompt': '''You are a professional medical note evaluator. Read the following medical note and then list out all instances of repetition, duplication, or redundancy. You should list each repeated part ona new line. Repetition may occur in a medical note where the same information is listed more than once under a different heading. This is very bad and it is your task to find and list out all instances where this has happened:
-             NOTES: {notes}''',
-        'type': 'list'
+        'prompt': '''You are an expert medical documentation specialist obsessed with details
+- You are comprehensively evaluating a clinical note generated from a consult transcript based on the quality of the output.
+- You will also be given the prompt for how the notes should have been written and are evaluating any instructions that were not followed in generating the supplied notes.
+- You will be given the transcript for the consult, generated notes, and the prompt used to generate the notes.
+- If something is not in the notes but also not clear in the transcript and theoretically couldnt have been included in the notes, dont mention this
+- Provide your answers in dot point form, quoting the input sources where possible.
+Find the number of cases where the same information is repeated multiple times in the notes. All similar information should only appear once under a specific heading and should never be repeated. You must find the count of the number of instances where the same information is repeated multiple times in the notes.''',
+        'type': 'list',
+        'input_required': 'notes'
     },
     {
         'title': 'wrong_sections',
-        'prompt': '''You are a professional medical note evaluator. Read the following medical note and then list out all instances where information has been listed out under the wrong section
-            NOTES: {notes}''',
-        'type': 'list'
+        'prompt': '''You are an expert medical documentation specialist obsessed with details
+- You are comprehensively evaluating a clinical note generated from a consult transcript based on the quality of the output.
+- You will also be given the prompt for how the notes should have been written and are evaluating any instructions that were not followed in generating the supplied notes.
+- You will be given the transcript for the consult, generated notes, and the prompt used to generate the notes.
+- If something is not in the notes but also not clear in the transcript and theoretically couldnt have been included in the notes, dont mention this
+- Provide your answers in dot point form, quoting the input sources where possible.
+Read the following medical note and then list out all instances where you believe information has been listed out under the wrong section''',
+        'type': 'list',
+        'input_required': 'notes'
+
     },
     {
         'title': 'level_of_detail',
         'prompt': 'Rate the level of detail in the note on a scale of 0-100.\n\nNote:\n{notes}, where 100 is no mistakes, and then subtract one for every sentence with a mistake',
-        'type': 'score'
+        'type': 'score',
+        'input_required': 'notes'
     }
 ]
 
@@ -45,8 +75,7 @@ def decorate_criteria_prompts(criteria):
         You must not preamble your response whatsoever, simply output the list straight away, with each new point on it's own newline, no space separation
         '''
     elif criteria['type'] == 'score':
-        return f'''You are a professional medical note evaluator. Your task is to read a medical note and then perform a detailed analysis on it, and provide one number
-        {criteria['prompt']}
+        return f'''{criteria['prompt']}
         Ratings must be done on a scale of [0-100]
         You must first justify your score, explaining the reasoning behind how you arrived at the number, and then output the number. The number should only be mentioned once. 
         '''

@@ -44,23 +44,38 @@ with st.sidebar:
         st.warning("Please upload data to select columns.")
 
 
+def get_user_prompt(input_required, notes, transcript):
+    match input_required:
+        case 'notes':
+            return f'''NOTES: {notes}'''
+        case 'transcript':
+            return f'''TRANSCRIPT: {transcript}'''
+        case 'both':
+            return f'''NOTES: {notes}
+TRANSCRIPT: {transcript}'''
+
+
 def evaluate_notes(df, notes_col, transcript_col, criteria_list, model_type):
     results = df.copy()
 
     for criterion in criteria_list:
         title = criterion['title']
-        prompt_template = criterion['prompt']
         response_type = criterion['type']  # 'list' or 'score'
 
         def process_row(row):
             notes = row[notes_col]
             transcript = row[transcript_col]
-            user_prompt = prompt_template.format(notes=notes, transcript=transcript)
 
             messages = [
-                {"role": "system", "content": "You are an assistant helping to evaluate medical notes."},
-                {"role": "user", "content": user_prompt}
+                {
+                    "role": "system", "content": criterion['prompt']
+                },
+                {
+                    "role": "user", "content": get_user_prompt(criterion['input_required'], notes, transcript)
+                }
             ]
+
+            print(messages)
 
             response = generate(messages, model_type)
 
