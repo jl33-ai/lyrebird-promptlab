@@ -83,5 +83,11 @@ def decorate_criteria_prompts(criteria):
 
 def get_criteria():
     return [
-        {'title': criteria['title'], 'prompt': decorate_criteria_prompts(criteria), 'type': criteria['type']}
-        for criteria in CRITERIA]
+        {
+            'title': criteria['title'],
+            'prompt': decorate_criteria_prompts(criteria),
+            'type': criteria['type'],
+            'input_required': criteria['input_required']
+        }
+        for criteria in CRITERIA
+    ]
