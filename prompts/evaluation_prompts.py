@@ -62,7 +62,7 @@ Read the following medical note and then list out all instances where you believ
     },
     {
         'title': 'level_of_detail',
-        'prompt': 'Rate the level of detail in the note on a scale of 0-100.\n\nNote:\n{notes}, where 100 is no mistakes, and then subtract one for every sentence with a mistake',
+        'prompt': 'Rate the level of detail in the note on a scale of 0-100, where 100 is no mistakes, and then subtract one for every sentence with a mistake',
         'type': 'score',
         'input_required': 'notes'
     }
